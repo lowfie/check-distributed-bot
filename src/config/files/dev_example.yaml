@@ -1,6 +1,6 @@
 bot:
   token: "eyrtjyhfh5436rutyhfgw45r6utyfg"
-  send_chat_id: "-1002085765478"
+  send_chat_id: "-123123123123"
 
 scanner:
   maximum_scanning_blocks: 500
@@ -10,3 +10,6 @@ scanner:
 
 web3:
   provider_url: https://rpc.flashbots.net
+
+contracts:
+  aix_treasury: "0xaBE235136562a5C2B02557E1CaE7E8c85F2a5da0"
