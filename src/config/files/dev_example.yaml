@@ -1,0 +1,12 @@
+bot:
+  token: "eyrtjyhfh5436rutyhfgw45r6utyfg"
+  send_chat_id: "-1002085765478"
+
+scanner:
+  maximum_scanning_blocks: 500
+  confirmation_blocks: 10
+  speedy_polling_interval: 5
+  polling_interval: 30
+
+web3:
+  provider_url: https://rpc.flashbots.net

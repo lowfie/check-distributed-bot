@@ -1,0 +1,75 @@
+version: "3.8"
+
+services:
+  bot: &python
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./src/:/usr/src/app/src
+    command: poetry run python src/services/bot/entrypoint.py
+    restart: unless-stopped
+    container_name: check-distributed-bot
+    networks:
+      check-distributed-bot-net:
+
+  db:
+    image: postgres:16.1
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./.docker/postgres/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}" ]
+      interval: 10s
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    container_name: check-distributed-bot-db
+    networks:
+      check-distributed-bot-net:
+
+  redis:
+    image: redis:7.0
+    restart: unless-stopped
+    volumes:
+      - ./.docker/redis-data:/data
+    container_name: check-distributed-bot-redis
+    networks:
+      check-distributed-bot-net:
+
+  celery:
+    <<: *python
+    ports: [ ]
+    volumes: [ ]
+    command: poetry run python -m celery -A src.services.worker.core.celery_app worker -l info -c 5
+    container_name: check-distributed-bot-celery
+    networks:
+      check-distributed-bot-net:
+
+  celery-beat:
+    <<: *python
+    volumes: [ ]
+    ports: [ ]
+    command: poetry run python -m celery -A src.services.worker.core.celery_app beat -l info
+    container_name: check-distributed-bot-celery-beat
+    networks:
+      check-distributed-bot-net:
+
+  scanner:
+    <<: *python
+    ports: [ ]
+    volumes: [ ]
+    command: poetry run python src/services/scanner/entrypoint.py
+    container_name: check-distributed-bot-scanner
+    networks:
+      check-distributed-bot-net:
+
+networks:
+  check-distributed-bot-net:
